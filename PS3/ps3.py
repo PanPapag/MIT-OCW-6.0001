@@ -33,7 +33,6 @@ def load_words():
     wordlist = []
     for line in inFile:
         wordlist.append(line.strip().lower())
-    print("  ", len(wordlist), "words loaded.")
     return wordlist
 
 
@@ -291,7 +290,29 @@ def play_hand(hand, word_list):
 
     # Return the total score as result of function
 
+    total_score = 0
+    while sum(hand.values()) > 0:
 
+        print("Current hand:", end = ' ')
+        display_hand(hand)
+
+        word = input("Enter word, or '!!' to indicate that you are finished: ").strip()
+
+        if word == "!!":
+            break
+        else:
+            if is_valid_word(word, hand, word_list) == True:
+                points = get_word_score(word, calculate_handlen(hand))
+                print("'{}' earned {} points.".format(word, points), end = ' ')
+                total_score += points
+            else:
+                print("That is not a valid word. Please choose another word.", end = ' ')
+
+        hand = update_hand(hand, word)
+        print("Total score: {}".format(total_score))
+        print()
+
+    return total_score
 
 #
 # Problem #6: Playing a game
