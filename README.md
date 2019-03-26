@@ -1,5 +1,7 @@
 # MIT-OCW-Introduction-to-Computer-Science-and-Programming-in-Python-
 
+# Python version
+All assigments are implented uder Python 3.5+ version
 
 # References 
 
