@@ -160,9 +160,17 @@ def update_hand(hand, word):
     hand: dictionary (string -> int)
     returns: dictionary (string -> int)
     """
+    updated_hand = {}           # Create an empty hand dictionary
+    keys = list(hand.keys())    # Copy dictionary so as not to mutate original
+    for key in keys:
+        updated_hand[key] = hand[key]
 
-    pass  # TO DO... Remove this line when you implement this function
+    for letter in word.lower():
+        if updated_hand.get(letter) != None:
+            if updated_hand.get(letter) >= 0:
+                updated_hand[letter] -= 1;
 
+    return updated_hand
 #
 # Problem #3: Test word validity
 #
@@ -178,8 +186,19 @@ def is_valid_word(word, hand, word_list):
     returns: boolean
     """
 
-    pass  # TO DO... Remove this line when you implement this function
+    if word.lower() not in word_list:
+        return False
 
+    word_dict = get_frequency_dict(word.lower())
+    
+    for letter in word_dict.keys():
+        if hand.get(letter) != None:
+            if hand[letter] < word_dict[letter]:
+                return False
+        else:
+            return False
+
+    return True
 #
 # Problem #5: Playing a hand
 #
@@ -223,8 +242,6 @@ def play_hand(hand, word_list):
       returns: the total score for the hand
 
     """
-
-    # BEGIN PSEUDOCODE <-- Remove this comment when you implement this function
     # Keep track of the total score
 
     # As long as there are still letters left in the hand:
