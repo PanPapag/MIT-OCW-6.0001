@@ -36,6 +36,7 @@ def load_words():
     print("  ", len(wordlist), "words loaded.")
     return wordlist
 
+
 def get_frequency_dict(sequence):
     """
     Returns a dictionary where the keys are elements of the sequence
@@ -84,8 +85,17 @@ def get_word_score(word, n):
     n: int >= 0
     returns: int >= 0
     """
+    first_comp = 0
+    for letter in word.lower():
+        if SCRABBLE_LETTER_VALUES.get(letter) != None:
+            first_comp += SCRABBLE_LETTER_VALUES.get(letter)
 
-    pass  # TO DO... Remove this line when you implement this function
+    second_comp = 7 * len(word) - 3 * (n - len(word))
+    if second_comp < 1:
+        second_comp  = 1
+
+    return first_comp * second_comp
+
 
 #
 # Make sure you understand how this function works and what it does!
@@ -126,7 +136,7 @@ def deal_hand(n):
     returns: dictionary (string -> int)
     """
 
-    hand={}
+    hand = {}
     num_vowels = int(math.ceil(n / 3))
 
     for i in range(num_vowels):
@@ -137,6 +147,7 @@ def deal_hand(n):
         x = random.choice(CONSONANTS)
         hand[x] = hand.get(x, 0) + 1
 
+    hand['*'] = 1
     return hand
 
 #
@@ -160,15 +171,12 @@ def update_hand(hand, word):
     hand: dictionary (string -> int)
     returns: dictionary (string -> int)
     """
-    updated_hand = {}           # Create an empty hand dictionary
-    keys = list(hand.keys())    # Copy dictionary so as not to mutate original
-    for key in keys:
-        updated_hand[key] = hand[key]
+    updated_hand = hand.copy()
 
     for letter in word.lower():
         if updated_hand.get(letter) != None:
             if updated_hand.get(letter) >= 0:
-                updated_hand[letter] -= 1;
+                updated_hand[letter] -= 1
 
     return updated_hand
 #
@@ -185,18 +193,28 @@ def is_valid_word(word, hand, word_list):
     word_list: list of lowercase strings
     returns: boolean
     """
+    word = word.lower()
+    new_hand = hand.copy()
 
-    if word.lower() not in word_list:
-        return False
+    # Check for wildcards in word.
+    wild_card_okay = False
+    if '*' in word:
+        for v in VOWELS:
+            if word.replace("*", v) in word_list:
+                wild_card_okay = True
+                break
 
-    word_dict = get_frequency_dict(word.lower())
-    
-    for letter in word_dict.keys():
-        if hand.get(letter) != None:
-            if hand[letter] < word_dict[letter]:
+
+    if word in word_list or wild_card_okay == True:
+        for letter in word:
+            if letter not in new_hand.keys():
                 return False
-        else:
-            return False
+            else:
+                new_hand[letter] -= 1
+                if new_hand[letter] == 0:
+                    del(new_hand[letter])
+    else:
+        return False
 
     return True
 #
@@ -210,7 +228,7 @@ def calculate_handlen(hand):
     returns: integer
     """
 
-    pass  # TO DO... Remove this line when you implement this function
+    return sum(hand.values())
 
 def play_hand(hand, word_list):
 
