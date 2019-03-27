@@ -13,14 +13,12 @@ def load_words(file_name):
     take a while to finish.
     '''
 
-    print("Loading word list from file...")
     # inFile: file
     inFile = open(file_name, 'r')
     # wordlist: list of strings
     wordlist = []
     for line in inFile:
         wordlist.extend([word.lower() for word in line.split(' ')])
-    print("  ", len(wordlist), "words loaded.")
     return wordlist
 
 def is_word(word_list, word):
@@ -55,6 +53,7 @@ CONSONANTS_LOWER = 'bcdfghjklmnpqrstvwxyz'
 CONSONANTS_UPPER = 'BCDFGHJKLMNPQRSTVWXYZ'
 
 class SubMessage(object):
+
     def __init__(self, text):
         '''
         Initializes a SubMessage object
@@ -65,7 +64,9 @@ class SubMessage(object):
             self.message_text (string, determined by input text)
             self.valid_words (list, determined using helper function load_words)
         '''
-        pass #delete this line and replace with your code here
+        self.message_text = text
+        self.valid_words = load_words(WORDLIST_FILENAME)
+
 
     def get_message_text(self):
         '''
@@ -73,7 +74,8 @@ class SubMessage(object):
 
         Returns: self.message_text
         '''
-        pass #delete this line and replace with your code here
+        return self.message_text
+
 
     def get_valid_words(self):
         '''
@@ -82,7 +84,8 @@ class SubMessage(object):
 
         Returns: a COPY of self.valid_words
         '''
-        pass #delete this line and replace with your code here
+        return self.valid_words.copy()
+
 
     def build_transpose_dict(self, vowels_permutation):
         '''
@@ -103,8 +106,21 @@ class SubMessage(object):
         Returns: a dictionary mapping a letter (string) to
                  another letter (string).
         '''
+        decryption_dict = {}
 
-        pass #delete this line and replace with your code here
+        for l_cons in CONSONANTS_LOWER:
+            decryption_dict[l_cons] = l_cons
+
+        for u_cons in CONSONANTS_UPPER:
+            decryption_dict[u_cons] = u_cons
+
+        for index, l_vowel in enumerate(VOWELS_LOWER):
+            decryption_dict[l_vowel] = vowels_permutation[index]
+
+        for index, u_vowel in enumerate(VOWELS_UPPER):
+            decryption_dict[u_vowel] = vowels_permutation[index].upper()
+
+        return decryption_dict
 
     def apply_transpose(self, transpose_dict):
         '''
@@ -114,7 +130,16 @@ class SubMessage(object):
         on the dictionary
         '''
 
-        pass #delete this line and replace with your code here
+        encrypted_message = ""
+
+        for char in self.message_text:
+            if char.isalpha() == True:
+                encrypted_message += ''.join(transpose_dict[char])
+            else:
+                encrypted_message += ''.join(char)
+
+        return encrypted_message
+
 
 class EncryptedSubMessage(SubMessage):
     def __init__(self, text):
@@ -127,7 +152,8 @@ class EncryptedSubMessage(SubMessage):
             self.message_text (string, determined by input text)
             self.valid_words (list, determined using helper function load_words)
         '''
-        pass #delete this line and replace with your code here
+        super().__init__(text)
+
 
     def decrypt_message(self):
         '''
@@ -147,8 +173,23 @@ class EncryptedSubMessage(SubMessage):
 
         Hint: use your function from Part 4A
         '''
-        pass #delete this line and replace with your code here
+        best_perm = ''
+        max_count = 0
 
+        for perm in get_permutations(VOWELS_LOWER):
+            count = 0
+            transposed_statement = super().apply_transpose(super().build_transpose_dict(perm))
+            for word in transposed_statement.split(' '):
+                if is_word(self.get_valid_words(), word):
+                    count += 1
+                if count >= max_count:
+                    max_count = count
+                    best_perm = perm
+
+        if max_count == 0:
+            return self.message_text
+        else:
+            return super().apply_transpose(super().build_transpose_dict(best_perm))
 
 if __name__ == '__main__':
 
